@@ -49,13 +49,14 @@ for _,article in pairs(list)
 do
 	tmp[article.name] = article;
 	local year,month,day = string.match(article.date,
-					    "(%d%d%d%d)%-(%d%d)-(%d%d)");
+					    "(%d%d%d%d)%-(%d%d)%-(%d%d)");
 	year,month,day = tonumber(year),tonumber(month),tonumber(day);
-	article.time = os.time({
+	article.date = os.time({
 				year	= year,
 				month	= month,
 				day	= day,
 			       });
+
 	table.insert(target,article.name);
 end
 local nativeList = list;
