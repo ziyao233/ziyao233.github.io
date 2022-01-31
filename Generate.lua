@@ -109,7 +109,10 @@ do
 end
 
 --[[	Generate the mainpage "index.html"	]]
-table.sort(nativeList,function(a1,a2) return a1 > a2; end);
+table.sort(nativeList,function(a1,a2)
+				return a1.date > a2.date;
+		      end
+	  );
 
 io.write("Generating index.html...");
 local resultHtml	= indexTpl:replace(nativeList);
