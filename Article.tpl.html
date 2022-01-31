@@ -1,0 +1,25 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Suote127.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - $$tpl.result[1] = tpl.arg.title;$$</title>
+	</head>
+
+	<body>
+		$$ tpl.result[1] = tpl.arg.content; $$
+		<div style = "text-align: right">
+			Last Change: $$
+tpl.result[1] = os.date("%Y-%m-%d",tpl.arg.time);
+$$
+		</div>
+		<div style = "text-align: center">
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
