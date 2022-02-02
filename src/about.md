@@ -11,13 +11,12 @@
 - 编译器  
 - 计算机底层的一些东西？  
 - 很美的纯音乐！  
-- --Lua和C--
+- ~~Lua和C~~
 - 卡林巴琴和吉他
 
 ## 关于这个网站？  
---由于咱不喜欢JavaScript和Golang，--网站没有用Hexo或者Hugo来生成动态页面  
-而是用了自己写的一段Lua脚本驱动``md2html``完成文章生成和网页模板替换  
---感觉还可以--
+~~由于咱不喜欢JavaScript和Golang，网站没有用Hexo或者Hugo来生成动态页面，而是用了自己写的一段Lua脚本驱动``md2html``完成文章生成和网页模板替换~~  
+~~感觉还可以~~
 
 ## 想和咱说说话嘛？  
 
@@ -35,8 +34,8 @@
 ## 我的项目嘛？  
 呜呜都很差 不要吐槽啦  
 
-- ![cwb](https://github.com/st127/cwb)  
-- ![lall](https://github.com/st127/lall)
-- ![libcson](https://github.com/st127/libcson)
+- [cwb](https://github.com/st127/cwb)  
+- [lall](https://github.com/st127/lall)
+- [libcson](https://github.com/st127/libcson)
 
 喵~

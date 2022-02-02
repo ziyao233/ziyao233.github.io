@@ -81,7 +81,7 @@ do
 	--[[	Convert Markdown with md2html	]]
 	local pipe = io.popen(string.format(
 	[[
-		/usr/bin/env md2html %s%s.md
+		/usr/bin/env md2html --fstrikethrough %s%s.md
 	]],
 					    gSrcDir,
 					    name),
