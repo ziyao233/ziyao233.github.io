@@ -5,7 +5,7 @@
 	A normal Lua 5.4(or newer) Distribution
 		with io.popen support is needed.
 	By MIT License.
-	Copyright(c) 2022 Suote127.All rights reserved.
+	Copyright(c) 2022 Ziyao.All rights reserved.
 ]]
 
 local io		= require("io");

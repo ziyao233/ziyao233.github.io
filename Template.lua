@@ -2,7 +2,7 @@
 	Blog
 	File:/Template.lua
 	By MIT License.
-	Copyright (c) 2021-2022 Suote127.All rights reserved.
+	Copyright (c) 2021-2022 Ziyao.All rights reserved.
 	From Mixol
 ]]
 
