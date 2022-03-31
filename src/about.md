@@ -6,6 +6,7 @@
 平时叫咱猫猫也可以啦w  
 由于历史原因嘛...在技术平台上也有用索特127(Suote127,st127)的名字  
 是同一个人啦  
+现在这个名字被弃用了哦
 
 ## 爱好？
 - 编译器  
@@ -21,7 +22,7 @@
 ## 想和咱说说话嘛？  
 
 - 邮件 ``tswuyin_st127@163.com``  
-- Telegram ``@Suote127``  
+- Telegram ``@Ziyao233``  
 
 ## 一点点心愿和计划？
 
@@ -34,8 +35,8 @@
 ## 我的项目嘛？  
 呜呜都很差 不要吐槽啦  
 
-- [cwb](https://github.com/st127/cwb)  
-- [lall](https://github.com/st127/lall)
-- [libcson](https://github.com/st127/libcson)
+- [cwb](https://github.com/ziyao233/cwb)  
+- [lall](https://github.com/ziyao233/lall)
+- [libcson](https://github.com/ziyao233/libcson)
 
 喵~
