@@ -13,7 +13,16 @@
 - 计算机底层的一些东西？  
 - 很美的纯音乐！  
 - ~~Lua和C~~
-- 卡林巴琴和吉他
+- 卡林巴琴和吉他  
+- 轻量的小东西！
+
+## 给我的技术情况下个定义？  
+- 编译器相关  
+- 来自上世纪的汇编程序员    
+- Alpine Linux & Debian Linux & OpenBSD 用户  
+- Lua 和 C 程序员，（暂时）坚守 C99 但是拥抱最新的 Lua 5.4  
+- ~~半个~~ OIer，被迫写 C++  
+- 把玩 Arduino  
 
 ## 关于这个网站？  
 ~~由于咱不喜欢JavaScript和Golang，网站没有用Hexo或者Hugo来生成动态页面，而是用了自己写的一段Lua脚本驱动``md2html``完成文章生成和网页模板替换~~  
@@ -38,5 +47,6 @@
 - [cwb](https://github.com/ziyao233/cwb)  
 - [lall](https://github.com/ziyao233/lall)
 - [libcson](https://github.com/ziyao233/libcson)
+- [iptn](https://github.com/ziyao233/iptn)  
 
 喵~
