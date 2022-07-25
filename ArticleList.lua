@@ -19,4 +19,14 @@
 		title	= "我的2021",
 		date	= "2022-04-22",
 	},
+	{
+		name	= "MathJax_Test",
+		title	= "MathJax 测试",
+		date	= "2022-07-25",
+	},
+	{
+		name	= "Sum_1",
+		title	= "和式-成套方法",
+		date	= "2022-07-25",
+	},
 }
