@@ -1,0 +1,87 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - 和式-成套方法</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>和式（1） 成套方法</h1>
+<h2>这一系列文章</h2>
+<p>由于近期要参加 CSP-S 竞赛，需要一些数学知识，因此总结此系列文章，
+讲述和式/递归式的求解</p>
+<h2>成套方法</h2>
+<p>对于一个递归式，我们有可能将它转写为封闭的形式，例如
+$$	S_0 = a_0		$$
+$$	S_n = S_{n-1} + a_n	$$
+（事实上我们会看到，这个递归式等价于 $ S_n = \sum_0^n a_n $）</p>
+<p>要求解这个递归式并将其转化为封闭形式，我们可以考虑<code>成套方法</code>。其
+中心思想在于用一些简单函数来替换 $ S_n $ ，从而得出结果中各项系数
+与 $ n $ 的关系。</p>
+<p>当取 $ a_0 = \alpha $ ，而 $ a_n = a_{n - 1} + \beta + \gamma n$
+时，该和式成为了一个等差数列。我们已经很熟悉它的解，因此我们将以它
+作为例子。</p>
+<h3>写出一些项</h3>
+<p>$$	S_0 = \alpha				$$
+$$	S_1 = \alpha + \beta + \gamma		$$
+$$	S_2 = \alpha + 2\beta + 3\gamma	$$
+$$	S_3 = \alpha + 3\beta + 6\gamma	$$</p>
+<p>观察数列的前几项可以给予我们一些相关的信息<del>但这在成套方法里帮助不大</del></p>
+<h3>写出一般表示</h3>
+<p>$$	S_n = A(n)\alpha + B(n)\beta + C(n)\gamma	$$</p>
+<h3>使用简单函数代换之</h3>
+<p>如果我们令 $ S_n = 1 $ （这最简单不过了），我们有
+$$	S_0 = \alpha = 1			\tag{a}	$$
+$$	S_1 = \alpha + \beta + \gamma = 1	\tag{b} $$
+从 a 容易得到 $ \alpha = 1 $，进而由 b 得到 $ \beta = \gamma = 0 $</p>
+<p>我们将这个结论代入原来得出的一般表示中，有
+$$	1 = A(n)	$$</p>
+<p>这不需要证明，结论是显然的</p>
+<p>接下来换用第二个简单函数，令 $ S_n = n $ （这也很简单），我们有<br>
+$$	S_0 = \alpha = 0			\tag{a} $$
+$$	S_1 = \alpha + \beta + \gamma = 1	\tag{b} $$
+$$	S_2 = \alpha + 2\beta + 3\gamma = 2	\tag{c}	$$
+于是我们容易解出 $ \alpha = 0,\beta = 1,\gamma = 0 $</p>
+<p>代入到一般形式中，我们有
+$$	n = B(n)	$$</p>
+<p>您正在成功，我们还剩下一个函数，这次用 $ S_n = n^2 $ 代换之，
+可以解出 $ \alpha = 0, \beta = -1, \gamma = 2 $，
+很容易得到 $ C(n) = \frac{n(n+1)}{2} $</p>
+<p>我们最终得到了需要的结果，取 $ \alpha = \beta = a,\gamma = b $，
+我们的解是 $ S_n = a(n+1) + \frac{bn(n+1)}{2} $</p>
+<h2>总结</h2>
+<p>使用成套方法求解递归式的方法大概如下</p>
+<ol>
+<li>观察递归式的项，写出所有情况下的一般表示（思考对于奇数偶数的
+n 取值有不同定义的递归式）。这个一般表示为几个参数的和，每个参数
+有自己的系数函数。</li>
+<li>用简单函数代换递归式的值，求出对应情况下参数的取值，再代入简单
+函数求出系数函数的表达式</li>
+<li>写出最终结果</li>
+</ol>
+<p>非常简单，但是偶尔成套方法确实会带来一些运算量<del>相比于脑力劳动不算什么</del></p>
+
+		<div style = "text-align: right">
+			Last Change: 2022-07-25
+		</div>
+		<div style = "text-align: center">
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
