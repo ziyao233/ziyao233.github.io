@@ -1,0 +1,77 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - 微积分-洛必达法则</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>微积分-洛必达法则</h1>
+<h2>洛必达法则</h2>
+<p>洛必达法则用于求取类似 $ \frac {0} {0} $ 或者
+$ \frac {\infty} {\infty} $ 形式的极限，这种极限称为不定式极限。</p>
+<p>当一个不定式极限 $ \lim \frac {f(x)} {g(x)} $ 满足</p>
+<ol>
+<li>$ {f}'(x),{g}'(x) $ 存在且 $ {g}'(x) \neq 0 $</li>
+<li>$ \lim \frac{{f}'(x)}{{g}'(x)} = A $</li>
+</ol>
+<p>时（其中 A 可以取常数或者无穷大），我们有</p>
+<p>$$	\lim \frac{f(x)} {g(x)} = \lim \frac{{f}'(x)} {{g}'(x)}	$$</p>
+<p>此处不再加以证明</p>
+<h2>特殊的不定式极限</h2>
+<h3>无穷大与无穷小之积</h3>
+<p>形如 $ 0 \cdot \infty $ 的极限可以通过将其看作分母为 1 的分数，
+分子分母同时除以其中的一项转化为可以使用洛必达法则求取的极限。个人
+认为尽可能保持分母简单有助于计算正确。</p>
+<p>$$
+\eqalign {
+\lim _ {x \to \infty} x(e^{\frac {1} {x}} - 1)
+&amp;= \lim _ {x \to \infty} \frac {e^{\frac{1} {x} - 1}}{\frac{1}{x}} \\
+&amp;= \lim _ {x \to \infty} \frac {({\frac {1} {x}})'e^{\frac {1} {x}}}
+{({\frac {1} {x}}')}		    \\
+&amp;= \lim _ {x \to \infty} e^{\frac {1} {x}}			    \\
+&amp;= 1
+}
+$$</p>
+<h3>幂指函数</h3>
+<p>求取类 $ {\infty}^{0},0^0 $ 形式的极限可以考虑利用恒等式</p>
+<p>$$	e^{\ln x} = x	$$</p>
+<p>将式子转化为 e 为底的指数函数的形式，再对利用指数函数的连续性，对指数运用
+洛必达法则（我们可以将原来的幂指数从对数中提出来）</p>
+<p>$$
+\eqalign {
+\lim _ {x \to 0^{+}} x^x
+&amp;= \lim _ {x \to 0^{+}} e^{\ln x^x}				\\
+&amp;= \lim _ {x \to 0^{+}} e^{x \ln x}				\\
+&amp;= \lim _ {x \to 0^{+}} e^{\frac {\ln x} {\frac {1} {x}}}	\\
+&amp;= \lim _ {x \to 0^{+}} e^{\frac {\frac {1} {x}}{\frac {-1} {x^2}}}\\
+&amp;= \lim _ {x \to 0^{+}} e^{-x}					\\
+&amp;= e^{\lim _ {x \to 0^{+}} {-x}}				\\
+&amp;= 1
+}
+$$</p>
+
+		<div style = "text-align: right">
+			Last Change: 2022-07-26
+		</div>
+		<div style = "text-align: center">
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
