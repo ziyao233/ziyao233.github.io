@@ -29,7 +29,7 @@ $$
 	\lim \_ {x \to \infty} x(e^{\frac {1} {x}} - 1)
 	&= \lim \_ {x \to \infty} \frac {e^{\frac{1} {x} - 1}}{\frac{1}{x}} \\\\
 	&= \lim \_ {x \to \infty} \frac {({\frac {1} {x}})'e^{\frac {1} {x}}}
-					{({\frac {1} {x}}')}		    \\\\
+					{({\frac {1} {x}})'}		    \\\\
 	&= \lim \_ {x \to \infty} e^{\frac {1} {x}}			    \\\\
 	&= 1
 	}
