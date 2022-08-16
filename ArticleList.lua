@@ -49,4 +49,9 @@
 		title	= "动态规划初步",
 		date	= "2022-08-12",
 	},
+	{
+		name	= "Alpine_Packaging",
+		title	= "Alpine Linux 打包",
+		date	= "2022-08-14",
+	},
 }
