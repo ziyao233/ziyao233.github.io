@@ -1,0 +1,216 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - Alpine Linux 打包</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>Alpine Linux 打包</h1>
+<p>注：本文作于 2022.08.16，Alpine Linux 包维护规则可能变动，请参考最新的
+<a href="https://gitlab.alpinelinux.org/alpine/aports">aports</a></p>
+<h2>背景</h2>
+<p>没什么背景。有人说 Alpine Linux 有亿点灵，我感觉还好吧（x</p>
+<p>至少暂时还没踩过大坑。</p>
+<p>以下将 Alpine Linux 简写为 Alpine</p>
+<h2>前置知识</h2>
+<p>Alpine 通过 aports 管理它的软件包。aports 本质上是一个 Git 仓库，其中
+保存有所有包的打包脚本。</p>
+<p>Alpine 的源中将软件包分为三类：main，community 以及 testing。</p>
+<ul>
+<li>main：系统的核心软件包，例如内核和 busybox；同时也包括用作服务器的
+必须软件包，例如 Nginx</li>
+<li>community： 社区提供的软件包</li>
+<li>testing： 测试中的软件包，经过维护者审核后可以合入 community/main</li>
+</ul>
+<p>Alpine 的源中包括每个发行版的稳定分支以及 edge 分支，后者包含最新的
+软件包，但是可能包含不稳定性</p>
+<p>Alpine 中的 Lua 模块应当以 lua- 开头，Perl 模块应当以 perl- 开头</p>
+<h2>配置</h2>
+<p>首先你需要自己的 Alpine Linux 安装。我在 QEMU 中做这件事情。需要注意
+的是，QEMU 如果使用 User Mode 网卡模拟（这是默认的）无法转发 ICMP 包，
+进而 ping 不通外网（QEMU 会模拟一个小内网）。Alpine Linux 安装之后
+可以随时通过 setup-xxx 系列命令进行配置。</p>
+<p>打包中需要一些来自 community 的软件包，它可能是被禁用的。请在
+/etc/apk/repository 中解注释对应的源</p>
+<p>我们需要</p>
+<ul>
+<li>abuild</li>
+<li>atools (community)</li>
+</ul>
+<p>使用 apk 可以很容易地安装这些软件包</p>
+<p>您需要创建 /var/cache/distfiles，
+abuild 在该目录中储存包文件，请确保您的用户对该目录拥有写权限。</p>
+<p>您需要 abuild-keygen 生成密钥，例如</p>
+<pre><code class="language-Shell">$ abuild-keygen -i -a
+</code></pre>
+<p>您当然需要 git，此处不再赘述配置</p>
+<h2>开始</h2>
+<p>您需要 aports 仓库，使用 git 从
+https://gitlab.alpinelinux.org/alpine/aports.git 克隆是个好主意。
+但是受限于网络环境，您可以 <code> git init</code> 新建一个仓库再通过
+<code>git fetch URL</code> 拉取代码。</p>
+<p>git 的 <code>http.proxy</code> 选项对 SOCKS5 代理有效。</p>
+<p>当您拥有仓库的时候，我们可以开始打包了</p>
+<h2>APKBUILD</h2>
+<p>aports 通过 abuild 构建软件包。我们建议将软件包首先加入到
+testing 分支，即使这不是必须的。</p>
+<p>进入 aports/testing，您可以使用 ``newapkbuild PACKAGENAME` 来
+初始化对应的 APKBUILD 文件。编辑对应的 APKBUILD 文件，您会看到
+类似这样的内容：</p>
+<pre><code class="language-Shell"># Contributor:
+# Maintainer:
+pkgname=test
+pkgver=
+pkgrel=0
+pkgdesc=&quot;&quot;
+url=&quot;&quot;
+arch=&quot;all&quot;
+license=&quot;&quot;
+depends=&quot;&quot;
+makedepends=&quot;&quot;
+checkdepends=&quot;&quot;
+install=&quot;&quot;
+subpackages=&quot;$pkgname-dev $pkgname-doc&quot;
+source=&quot;&quot;
+builddir=&quot;$srcdir/&quot;
+
+build() {
+    # Replace with proper build command(s)
+    :
+}
+
+check() {
+    # Replace with proper check command(s)
+    :
+}
+
+package() {
+    # Replace with proper package command(s)
+    :
+}
+</code></pre>
+<h3>包信息</h3>
+<p>您应当在开头的注释中填写 Maintainer（包维护者）以及
+Contributor （作者），形式类似
+<code>Ziyao &lt;tswuyin_st127@163.com&gt;</code>。值得注意的是，原作者
+可以填写多个，但是包维护者只能填写一个。</p>
+<h3>pkgver &amp; pkgrel</h3>
+<p>前者是包版本号，请参见 wiki 的要求；后者是包修订号，
+当包需要升级又不比更改版本号的时候才需要增加。当包版本号
+更新时应当被清零</p>
+<h1>depends &amp; makedepends</h1>
+<p>前者是软件包的依赖，后者是构建时的包依赖，checkdepends
+也类似。请注意，出现在 depends 的包不需要重复出现在
+makedepends 中。</p>
+<h3>source</h3>
+<p>source 变量指定下载源代码的位置。如果下载的软件包名字不是
+<code>pkgname-pkgver.tar.gz</code> 的形式，请使用 <code>FILENAME::URL</code>
+的格式。否则 abuild 无法使用它。</p>
+<h3>build()</h3>
+<p>build() 函数中指定了构建的方式。请注意，如果解压之后的源代码
+包包括一个名为 ``pkgname-pkgver` 的目录，abuild 会自动切换
+至该目录下，否则会工作在 $srcdir 下。</p>
+<h3>check()</h3>
+<p>检查构建是否成功，不是必须的。</p>
+<h3>package()</h3>
+<p>安装目标文件。脚本中有预设变量 $pkgdir，指定了构建产物应当
+安装到的根目录。您可以书写类似
+<code>install -Dm 664 fn.lua -T $pkgdir/usr/share/lua/</code> 的内容</p>
+<h2>检查代码</h2>
+<p>您应当阅读 aports 下的两个 README 文件，其中包含了好的建议。</p>
+<p>如果你可能已经把事情弄糟了，使用 <code>apkbuild-lint</code> 工具检查
+代码风格</p>
+<p>粗略地说，您应当去除默认 APKBUILD 中任何不必要的空赋值
+（类似 <code>makedepends=&quot;&quot;</code>），不应该留下行尾空白符，不应该
+留下模板中的注释，不应该留下空函数 <del>这些问题我都犯了</del></p>
+<h2>构建！</h2>
+<p>您准备好了。现在运行 <code>abuild -r</code> 自动安装依赖进行构建</p>
+<p>如果构建成功，此时您的包应当位于 $(HOME)/packages 中，否则请
+参考错误信息进行修改。如果构建失败，abuild 不会删除中间
+阶段产物，您可以进行检查。</p>
+<p>请注意，APKBUILD 也不过只是一个 Shell 脚本，您可以使用
+任何 Shell 脚本能用的方式调试它，以及 abuild 的 <code>-v</code> 选项
+可以告诉你发生了什么。</p>
+<h2>测试您的包</h2>
+<p>使用 <code>apk add -X ~/packages/testing PKGNAME</code> 安装您的包。
+<code>-X</code> 选项临时使用一个源，如果需要的话，您也可以将该
+目录加入 <code>/etc/apk/repository</code> 文件中，但写到该文件的路径
+应当是绝对路径。</p>
+<h2>将您的包合并到 aports</h2>
+<p>当您的包准备好面世的时候，是时候将它提交到 aports 了。此处
+使用 GitLab 的 MR（Merge Request）进行这项工作。您需要在
+<a href="https://gitlab.alpinelinux.org/aport">GitLab</a> fork 该仓库，
+然后将它设置为远程分支：</p>
+<pre><code>git remote add fork PATH_TO_YOUR_FORK
+</code></pre>
+<p>创建新分支，在该分支工作</p>
+<pre><code>git checkout -b add-PKGNAME
+</code></pre>
+<p>您需要使用 git 创建一个提交</p>
+<pre><code class="language-Shell">git commit -a
+</code></pre>
+<p>请注意，您的 commit message 应该类似如下：</p>
+<pre><code>testing/PKGNAME: new aport
+
+LINK TO PROJECT
+SIMPLE DESCRIPTION
+</code></pre>
+<p>如</p>
+<pre><code>testing/lua-fn: new aport
+
+https://github.com/ziyao233/lua-fn
+Functional programming library for Lua
+</code></pre>
+<p>此时您已经做到了，此时您需要将该分支推送到您的
+fork，然后提出 Merge Request 并等待合并</p>
+<h2>我的 Merge Request 没有被合并怎么办？</h2>
+<p>此时您的分支一定落后于 aports，我们需要变基分支</p>
+<p>首先，切换从 aports 拉取最新的 master 分支到本地</p>
+<pre><code class="language-Shell">git checkout master
+git pull aports master
+</code></pre>
+<p>进行变基</p>
+<pre><code>git checkout add-PKG
+git rebase master
+</code></pre>
+<p>进行修改，随意产生一个提交并将其挤压进一个提交</p>
+<pre><code># do your stuff
+git commit -a
+git rebase -i HEAD~2
+</code></pre>
+<p>在打开的编辑器中将最新的提交改为 squash，下一个
+编辑器中修改提交信息</p>
+<p>或者直接重做上一个提交</p>
+<pre><code>git commit -a --amend
+</code></pre>
+<p>强制推送提交</p>
+<pre><code>git push fork add-PKG -f
+</code></pre>
+<p>再次检查你的 Merge Request 状态</p>
+
+		<div style = "text-align: right">
+			Last Change: 2022-08-14
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
