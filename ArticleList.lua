@@ -54,4 +54,9 @@
 		title	= "Alpine Linux 打包",
 		date	= "2022-08-14",
 	},
+	{
+		name	= "CSP_S1_2021",
+		title	= "CSP-S1 题目",
+		date	= "2022-08-21",
+	}
 }
