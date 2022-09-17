@@ -1,0 +1,105 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - CSP-S1 题目</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>CSP-S1 2021——赛前</h1>
+<blockquote>
+<p>我以为是我太菜了 <del>，但是也确实是</del></p>
+</blockquote>
+<h2>Background</h2>
+<p>考试前居住地疫情四起，本来以为能推迟/线上赛，结果直接下放到县级考</p>
+<p>前天晚上我还在给 <a href="https://os.ewe.moe">eweOS</a> 拆 <code>binutils-objcopy</code>，
+明天初赛今天上午就临时抱佛脚，趁着自习课跑微机室看题</p>
+<p>此题坑非常多，以及部分题目非常坑。四毛子树今天是学不会了。本来想给
+自己点信心结果被打击得不行（x），最后还是
+<a href="https://www.zhihu.com/question/487742701">知乎上的问题</a>救回了我崩掉的心态</p>
+<h2>base64</h2>
+<p>程序阅读第三题响当当的 base64，看见 64 个字符和 <code>=</code> 立马认出来</p>
+<p><del>搞工程出身的算个编码背个 ASCII 调试用挺正常的</del></p>
+<p>至于 underdefined behavior，印象里好像是照 <code>signed char</code> 来做的</p>
+<h2>程序阅读第一题</h2>
+<p>蒙 <del>幸好前段时间学了点微积分</del></p>
+<p>$$ \arccos 0.5 = \frac{\pi}{3} $$</p>
+<p>正好和球的体积公式</p>
+<p>$$ V = \frac {\pi}{3} R^3$$</p>
+<p>部分重合</p>
+<p>if else 语句讨论了三种情况：两球相离，一个球完全在另一个内，以及最麻烦的交</p>
+<p>至于怎么看出来是体积交的，</p>
+<ol>
+<li>上面联想到了球体积公式</li>
+<li>输入包括 (a1,b1,c1) 和 (a2,b2,c2) 两个点，d1 d2 两个长度</li>
+<li>多次运用勾股定理求取距离，明显是计算几何</li>
+<li>选项提示</li>
+</ol>
+<p>先看最后一道选择，既然都是空间了那肯定不是圆的面积；
+只给了一个点和一个长度确定不了椭球，于是答案在 BC 徘徊。</p>
+<p>如果我们把两个对应的球画出来，沿着 Z 轴所在的某一个剖面来看，
+我们可以看到连接剖面的两个交点，与球心的连线形成了直角三角形。
+此时计算 x，y 及其在图形中对应的意义，涉及到曲线体积再积一下分就能选出来。</p>
+<p>（当然太麻烦了，直接代数，发现求的只可能是体积交）</p>
+<p>第一个判断开始也错了（x）</p>
+<h2>程序阅读第二题</h2>
+<p>首先拿上判断题最后一问手算，solve1 递归挺费演算纸的
+于是先算了看起来比较显然的 <code>solve2()</code> ，
+算出跨越中点的最大子数组的值之后就明白这道题在干什么了</p>
+<p>选择题第一题的时间复杂度也算错了，上去选了 $ O(n \lg n)$ ，结果错了。</p>
+<p>画一下递归树，然后发现事实上每一个节点的复杂度是 $ O(1) $ 不是 $ O(n) $。
+共有 $ \lg n $ 层，于是总复杂度是
+$$ \sum _ {k = 0} ^{\lg n - 1} 2 ^k $$</p>
+<p>用 $ n = 2^t $ 替换 $ n $，得到</p>
+<p>$$ \sum _ {k = 0} ^ {t - 1} 2^k $$</p>
+<p>也就是 $ 2^t - 1 $，再代回去 $ t = lg n $，结果就是 $ n - 1 $</p>
+<p>至于为什么最后一道选择不选 24，我也不知道</p>
+<h2>程序填空第一题</h2>
+<p>目测有点动态规划的感觉</p>
+<p><code>F[x]</code> 像代价数组（开始设置为 <code>INT_MAX</code>，最后又被输出），
+很明显 <code>F[n]</code> 就是写出 <code>n</code> 需要多少个 4。
+我们且称之为 <strong>四表示</strong> （不错的名字）</p>
+<p>那么写出 4 只需要一个 4 就行了（逃），第一题选 D</p>
+<p>先不看第二题<del>因为看不出来</del>，第三题决定了我们每次外层循环选中的 <code>x</code>。
+对应的 <code>Vis[x]</code> 数组意味着我们是否已经<strong>用过</strong> <code>x</code> 来生成
+别的数字的四表示了（得出这一点需要和其它选项一起分析），
+那么在 <code>Vis[x] = 1</code> 前的 <code>for </code> 循环中，我们要找出的 <code>x</code>
+必须从未包含在其它数字的四表示内，同时希望表示它的四表示
+所需的4 尽可能少，于是第三题选择 D</p>
+<p>我们可以回过头选择第二题了，因为只有 <code>n</code> 已经被用来表示其它数字，
+它的代价才已经确定，不会再改变了。</p>
+<p>第四题也很容易选择，如果我们要用 <code>x</code> 和 <code>i</code> 表示其它数字，
+我们必须保证 <code>x</code> 和 <code>i</code> 的四表示已经确定了，
+也就是 <code>Vis[x]</code> 和 <code>Vis[i]</code> 已经被置位了。
+前者已经保证过了，后者就是第四个空的答案</p>
+<p>撒花！</p>
+<p><em><strong>请注意！一遍遍被递增的这个 <code>r</code> 是没用的！！！</strong></em></p>
+<h2>总结</h2>
+<p>上场时间肯定是不够的</p>
+<p>就这样吧。</p>
+
+		<div style = "text-align: right">
+			Last Change: 2022-08-21
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
