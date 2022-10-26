@@ -1,0 +1,80 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - Luogu P1880</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>Luogu P1880</h1>
+<p>年轻人的第一道绿题</p>
+<p>感谢半场历史考试</p>
+<h2>Background</h2>
+<p>在一个圆形操场的四周摆放 $N$ 堆石子，现要将石子有次序地合并成一堆，规定每次
+只能选相邻的 $2$ 堆合并成新的一堆，并将新的一堆的石子数，记为该次合并的得分。</p>
+<p>试设计出一个算法,计算出将 $N$ 堆石子合并成 $1$ 堆的最小得分和最大得分。</p>
+<p>$1\leq N\leq 100$，$0\leq a_i\leq 20$。</p>
+<p>我们在此只考虑最大得分</p>
+<h2>环的转化</h2>
+<p>要注意的是, 石子首尾相连成环</p>
+<p>出现环的问题, 我们在解决时必然从某一个节点入手, 此时相当于将环从该节点处断开,
+即将环问题转换成了链问题</p>
+<p>然而对于一个 $ n $ 元环(化学乱入), 我们能够选择 $ n $ 种不同的断开方式, 如果
+将每一种方式生成的子问题都加以考虑就过于复杂, 此时可以通过将问题空间扩大两倍,
+将环展开成链后复制一部分, 首尾相接附加在原链后, 然后对所有长度为 $ n $ 的区间
+求值即可</p>
+<h2>暴力出奇迹</h2>
+<p>作为一道动态规划题, 仍然从暴力的角度入手</p>
+<p>定义 $ merge(l,r) $ 为合并 $ [l,r] $ 能够产生的最大收益, 对于平凡情况 $ l = r $</p>
+<p>$$
+merge(l,l) = 0
+$$</p>
+<p>对于非平凡情况, 我们能够作出的选择是<em><strong>在哪个位置</strong></em>进行合并. 此时只需要
+递归求解合并该点左侧, 右侧的所有石子分别能产生的最大收益, 再将这个值与
+合并 $ [l,r] $ 石堆后产生的石堆的石子数字相加.</p>
+<p>递归方程式为</p>
+<p>$$
+merge(l,r) = \begin{cases}
+0				&amp;	l = r \\
+max \{ merge(l,p) + merge(p + 1,r) \vert l \leq p \leq r \} +<br>
+\sum _ {k = l} ^ r stoneNum[k]	&amp;	l \neq r
+\end{cases}
+$$</p>
+<h2>优化</h2>
+<p>首先, 类似 DFS 的暴力解一定是会超时的, 基于动态规划的特性我们为其提供记忆话
+的代码</p>
+<p>石子的总数可以通过预先计算区间和以计算,
+<a href="https://blog.ziyao233.xyz/Algorithm">在我的 GitHub 代码中</a>, 可以通过前缀和
+以减少时间复杂度</p>
+<h2>总结</h2>
+<ol>
+<li>拆环为链的方法</li>
+<li>记忆化搜索</li>
+<li>前缀和</li>
+</ol>
+
+		<div style = "text-align: right">
+			Last Change: 2022-10-27
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
