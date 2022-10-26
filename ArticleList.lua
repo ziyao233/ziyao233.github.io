@@ -64,4 +64,9 @@
 		title	= "逃离",
 		date	= "2022-10-04",
 	},
+	{
+		name	= "Luogu_P1880",
+		title	= "Luogu P1880",
+		date	= "2022-10-27",
+	},
 }
