@@ -1,0 +1,108 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2022.01.30
+	By MIT License.
+	Copyright (c) 2022 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - asmbf: 汇编 brainfuck 解释器的实现</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>asmbf: 一个汇编 brainfuck 解释器的实现</h1>
+<p>前几天写了一个小玩具，<a href="https://github.com/ziyao233/asmbf">asmbf</a>，用纯汇编
+做了一个 <code>brainfuck</code> 解释器，这里总结一下过程里遇到的一些坑。</p>
+<h2>x86-64 还是 amd64</h2>
+<p>在一个技术群里差点和一位吵起来，当年 Intel 力推 <code>IA-64</code> 的时候，AMD 推出了
+兼容原 <code>x86</code> 架构的 <code>amd64</code> 架构，依靠兼容性干倒了 <code>IA-64</code>，于是从此
+兼容 <code>x86</code> 架构的 <code>amd64</code> （Intel 称之为 <code>x86-64</code>）成为了现行主流架构</p>
+<h2>系统调用</h2>
+<p>在 <code>x86_64 Call Convention</code> 中，<code>Linux</code> 系统调用传参方式和用户空间函数
+传参方式使用的寄存器是不同的，后者与本文无关不加赘述。</p>
+<p>进行系统调用时，我们使用 <code>syscall</code> 指令陷入内核，此时按照此顺序传递参数</p>
+<pre><code>%rdi, %rsi, %rdx, %r10, %r8, %r9
+</code></pre>
+<p><code>%rax</code> 中存放系统调用号，详见本文末附表</p>
+<h2>汇编</h2>
+<p>（描述编译汇编程序的过程用汇编 (assemble) 更合适）</p>
+<p>代码是纯 <code>AT&amp;T</code> 汇编（也叫 <code>GAS</code> 汇编）开始我用 <code>as</code> 直接编译代码，
+然而 as 生成的代码仍需要链接，同时无法使用宏（简单的常量定义可以使用
+<code>.equ</code> 伪指令），最后使用了 <code>gcc</code> 进行编译</p>
+<p>作为纯汇编程序，我不使用任何标准库，又因为我用的程序结构自行定义了
+<code>_start</code> 作为入口，<code>-nostdlib</code> 被用来禁用标准库。</p>
+<p>这种汇编代码没办法编译为运行时地址无关的目标文件，所以要用 <code>-no-pie</code> 让
+<code>gcc</code> 闭嘴</p>
+<p>文件命名使用了 <code>.S</code> 作为后缀，用来指示 <code>gcc</code> 对其调用 C 预处理器</p>
+<p>最后使用的指令类似</p>
+<pre><code>gcc asmbf.S -o asmbf -nostdlib -no-pie
+</code></pre>
+<h2>代码结构</h2>
+<pre><code>    .global		_start		// 导出 _start 符号
+    .code				// 唯一代码段
+_start:					// 代码入口点
+    /*	...	*/
+    movq		$60,		%rax
+    movq		$0,		%rdi
+    syscall				// 60 号系统调用，结束程序
+
+    .data				// 唯一数据段
+msg:	.asciz		&quot;Hello&quot;
+</code></pre>
+<h2>调试</h2>
+<p><code>gdb</code> 是个好东西，甚至可以拿来调汇编代码。</p>
+<p>在编译时打开 <code>-g -O0</code> 之后，我们可以直接用 <code>gdb</code> 单步调试代码</p>
+<p>一个常用的指令是 <code>info register</code>，缩写为 <code>i r</code>，可以查看寄存器信息</p>
+<h2>指令格式</h2>
+<p>要记住一条指令必须换行必须换行</p>
+<p><code>asmbf</code> 末尾有一串定义跳转表的伪指令，开始我想用类似</p>
+<pre><code>#define fill(x)		\
+.rept	x		\
+.quad	xxxxx		\
+.endr
+</code></pre>
+<p>的代码省事少写几行，结果发现这么写之后会报无效指令</p>
+<p>原因是 <code>\</code> 是续行符号，在宏替换时这些内容都会被合成一行，而在一行类似
+<code>.rept 1 .quad xxxx .endr</code> 的内容汇编器是不认识的</p>
+<h2>mmap 偷内存</h2>
+<p>我不想通过开大 <code>.data</code> 段的方式去分配内存（用来储存 <code>brainfuck</code> 机器的
+纸带内容），所以就用了 <code>mmap()</code> 来分配内存。</p>
+<p><code>fd = -1,addr = NULL</code> 同时 type 置位 <code>MAP_ANONYMOUS</code> 时，<code>mmap()</code> 会
+分配 <code>length</code> 长度的内存</p>
+<h2>内核常量附录</h2>
+<h3>文件打开方式</h3>
+<pre><code>O_RDONLY		00
+</code></pre>
+<h3>fseek() / lseek()</h3>
+<pre><code>SEEK_SET		0
+SEEK_CUR		1
+SEEK_END		2
+</code></pre>
+<h3>mmap()</h3>
+<pre><code>PROT_READ		0x1
+PROT_WRITE		0x2
+MAP_SHARED		0x01
+MAP_ANONYMOUS		0x20
+</code></pre>
+
+		<div style = "text-align: right">
+			Last Change: 2022-12-22
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
