@@ -69,4 +69,9 @@
 		title	= "Luogu P1880",
 		date	= "2022-10-27",
 	},
+	{
+		name	= "asmbf",
+		title	= "asmbf: 汇编 brainfuck 解释器的实现",
+		date	= "2022-12-22",
+	}
 }
