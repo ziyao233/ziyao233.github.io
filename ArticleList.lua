@@ -73,5 +73,10 @@
 		name	= "asmbf",
 		title	= "asmbf: 汇编 brainfuck 解释器的实现",
 		date	= "2022-12-22",
-	}
+	},
+	{
+		name	= "2022",
+		title	= "2022",
+		date	= "2023-01-03",
+	},
 }
