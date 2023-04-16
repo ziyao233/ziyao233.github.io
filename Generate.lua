@@ -48,16 +48,16 @@ local target = {};
 for _,article in pairs(list)
 do
 	tmp[article.name] = article;
-	local year,month,day = string.match(article.date,
-					    "(%d%d%d%d)%-(%d%d)%-(%d%d)");
-	year,month,day = tonumber(year),tonumber(month),tonumber(day);
+	local year, month, day = string.match(article.date,
+					      "(%d%d%d%d)%-(%d%d)%-(%d%d)");
+	year,month,day = tonumber(year), tonumber(month), tonumber(day);
 	article.date = os.time({
 				year	= year,
 				month	= month,
 				day	= day,
 			       });
 
-	table.insert(target,article.name);
+	table.insert(target, article.name);
 end
 local nativeList = list;
 list = tmp;
@@ -76,7 +76,7 @@ print(string.format("%d needs generating",
 for _,name in pairs(target)
 do
 	-- Logging
-	io.write(string.format("Generating %s...",name));
+	io.write(string.format("Generating %s...", name));
 
 	--[[	Convert Markdown with md2html	]]
 	local pipe = io.popen(string.format(
@@ -95,11 +95,12 @@ do
 				title	= list[name].title,
 				content = htmlSrc,
 				date	= list[name].date,
+				change	= list[name].change,
 		       };
 	local resultHtml = articleTpl:replace(tplArg);
-	local path = string.format("%s%s.html",gOutputDir,name);
+	local path = string.format("%s%s.html", gOutputDir,name);
 	local outputFile = io.open(path,"w");
-	assert(outputFile,"Cannot open output file " .. path);
+	assert(outputFile, "Cannot open output file " .. path);
 	outputFile:write(resultHtml);
 	outputFile:close();
 
@@ -110,7 +111,7 @@ do
 end
 
 --[[	Generate the mainpage "index.html"	]]
-table.sort(nativeList,function(a1,a2)
+table.sort(nativeList,function(a1, a2)
 				return a1.date > a2.date;
 		      end
 	  );
