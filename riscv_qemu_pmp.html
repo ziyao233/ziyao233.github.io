@@ -1,0 +1,208 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2023.04.16
+	By MIT License.
+	Copyright (c) 2022-2023 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - 记录 RISC-V QEMU 的一个坑</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>记录 RISC-V QEMU 的一个坑</h1>
+<blockquote>
+<p>开源灵车，创！</p>
+</blockquote>
+<h2>起因</h2>
+<p><a href="https://github.com/ziyao233/cocox-rv64">这个富有攻击性的仓库</a> 中包含一个
+（WIP 的）RISC-V 64 内核。<del>代码写不动的时候就会想到去借鉴一下别人的逻辑</del>，
+在 GitHub 以 riscv 和 kernel 为关键词进行搜索，排名靠前的项目之一就是
+<a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>。这个仓库在 QEMU 虚拟化
+的 RISC-V 系统上复刻了经典的 UNIX v6。</p>
+<p><code>git clone</code>，看代码。</p>
+<h2>RISC-V Priviledged Specification</h2>
+<p>If no PMP entry matches an M-mode access, the access succeeds. If no PMP
+entry matches an S-mode or U-mode access, but at least one PMP entry is
+implemented, the access fails.</p>
+<p>If at least one PMP entry is implemented, but all PMP entries’ A fields are set
+to OFF, then all S-mode and U-mode memory accesses will fail.</p>
+<p>标准这么说。</p>
+<h2>奇怪的 Issue</h2>
+<p><a href="https://github.com/mit-pdos/xv6-riscv/issues/103">mret 之后 QEMU 炸出不合法的指令</a>
+<a href="https://github.com/mit-pdos/xv6-riscv/issues/66">QEMU 卡死</a>
+<a href="https://github.com/mit-pdos/xv6-riscv/issues/84">QEMU v6 在执行 mret 后卡死</a>
+<a href="https://stackoverflow.com/questions/69133848/risc-v-illegal-instruction-exception-when-switching-to-supervisor-mode">mret 切换到 S 模式时 QEMU 挂起</a></p>
+<p>呃，一个很怪的问题。</p>
+<h2>分析</h2>
+<p>根据上面给出的 issue, 问题集中出现在 QEMU v6.0.0 的更新上，所以就此着手查找问题
+。</p>
+<p>从 QEMU GitHub 镜像仓获得代码，我用了 treeless 模式来减少克隆时间（由于要在提交
+树内回溯，不能 shallow clone）</p>
+<pre><code>git clone https://github.com/qemu/qemu.git --filter=blob:none
+</code></pre>
+<p>此时只有在检出时才会同步对应的对象文件。</p>
+<p>QEMU 为每一个 release 都打了 tag，我们大体了解一下代码结构，能发现</p>
+<pre><code>/ -
+  |- target
+       | --- riscv
+</code></pre>
+<p>riscv 目录下包含了 RISC-V 的具体实现。以 RISCV_EXCP_ILLEGAL_INST 为关键词
+grep 各源代码（这个关键词怎么找到的？根据 Issue 对应的异常是 Illegal
+instruction，以 illegal 为关键词进行 case-insensitive grep 很容易在
+<code>cpu_bits.h</code> 发现对应的定义），发现 mret_helper() 函数中确实在 v5.0.0 和
+v6.0.0 中有较大差别。</p>
+<p>v5.0.0:</p>
+<pre><code>target_ulong helper_mret(CPURISCVState *env, target_ulong cpu_pc_deb)
+{
+    if (!(env-&gt;priv &gt;= PRV_M))			// 鉴权
+        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
+
+    target_ulong retpc = env-&gt;mepc;		// 返回地址
+    if (!riscv_has_ext(env, RVC) &amp;&amp; (retpc &amp; 0x3))	// 检查地址对齐
+        riscv_raise_exception(env, RISCV_EXCP_INST_ADDR_MIS, GETPC());
+
+    target_ulong mstatus = env-&gt;mstatus;
+    target_ulong prev_priv = get_field(mstatus, MSTATUS_MPP);
+    target_ulong prev_virt = MSTATUS_MPV_ISSET(env);
+    mstatus = set_field(mstatus,
+        env-&gt;priv_ver &gt;= PRIV_VERSION_1_10_0 ?
+        MSTATUS_MIE : MSTATUS_UIE &lt;&lt; prev_priv,
+        get_field(mstatus, MSTATUS_MPIE));
+    mstatus = set_field(mstatus, MSTATUS_MPIE, 1);
+    mstatus = set_field(mstatus, MSTATUS_MPP, PRV_U);
+    mstatus = set_field(mstatus, MSTATUS_MPV, 0);
+    env-&gt;mstatus = mstatus;
+    riscv_cpu_set_mode(env, prev_priv);
+
+    if (riscv_has_ext(env, RVH)) {
+        if (prev_virt) {
+            riscv_cpu_swap_hypervisor_regs(env);
+        }
+
+        riscv_cpu_set_virt_enabled(env, prev_virt);
+    }
+
+    return retpc;
+}
+</code></pre>
+<p>可以看到，v5.0.0 此函数只会在鉴权失败时抛出 Illegal Instruction。</p>
+<p>v6.0.0:</p>
+<pre><code>target_ulong helper_mret(CPURISCVState *env, target_ulong cpu_pc_deb)
+{
+    if (!(env-&gt;priv &gt;= PRV_M)) {		// 鉴权
+        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
+    }
+
+    target_ulong retpc = env-&gt;mepc;
+    if (!riscv_has_ext(env, RVC) &amp;&amp; (retpc &amp; 0x3)) {	// 检查对齐
+        riscv_raise_exception(env, RISCV_EXCP_INST_ADDR_MIS, GETPC());
+    }
+
+    uint64_t mstatus = env-&gt;mstatus;
+    target_ulong prev_priv = get_field(mstatus, MSTATUS_MPP);
+
+    if (!pmp_get_num_rules(env) &amp;&amp; (prev_priv != PRV_M)) {	// 这里！
+        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
+    }
+
+    target_ulong prev_virt = get_field(env-&gt;mstatus, MSTATUS_MPV);
+    mstatus = set_field(mstatus, MSTATUS_MIE,
+                        get_field(mstatus, MSTATUS_MPIE));
+    mstatus = set_field(mstatus, MSTATUS_MPIE, 1);
+    mstatus = set_field(mstatus, MSTATUS_MPP, PRV_U);
+    mstatus = set_field(mstatus, MSTATUS_MPV, 0);
+    env-&gt;mstatus = mstatus;
+    riscv_cpu_set_mode(env, prev_priv);
+
+    if (riscv_has_ext(env, RVH)) {
+        if (prev_virt) {
+            riscv_cpu_swap_hypervisor_regs(env);
+        }
+
+        riscv_cpu_set_virt_enabled(env, prev_virt);
+    }
+
+    return retpc;
+}
+</code></pre>
+<p>从函数名字容易推断 <code>pmp_get_num_rules()</code> 能够获取已经定义的 PMP 规则的数量
+（实际定义于 <code>pmp.c</code> at line 74），即在 v6.0.0 版本的 QEMU 中会检查 PMP
+规则的数量，一旦为零（没有任何规则被定义）且 mret 将会切换到的模式不为机器
+模式，就会引发 Illegal Instruction 异常。</p>
+<blockquote>
+<p>If at least one PMP entry is implemented, but all PMP entries’ A fields are
+set to OFF, then all S-mode and U-mode memory accesses will fail.</p>
+</blockquote>
+<h2>群友踩雷</h2>
+<p>于是我成功避坑了，自己的 <a href="https://github.com/ziyao233/cocox-rv64">cocox-rv64</a>
+内核没有掉进这个问题<del>虽然掉进了另一个问题</del>。</p>
+<p>直到群友的出现，一个叫做 <code>switch_to</code> 的文件，一个 mcause = 0x01 的异常一样挂死
+了 QEMU，我立马想到 Issue 中的问题，给出了设置 PMP 寄存器的解决方案。</p>
+<pre><code>csrw	pmpcfg0,	0xf
+li	t0,		0x3fffffffffffff
+csrw	pmpaddr0,	t0
+</code></pre>
+<p>问题解决了。</p>
+<p>但是新的问题出现了：为什么这时候 mcause 变成了 0x1（Instruction Access
+Fault）而非原来的 Illegal Instruction 了呢？</p>
+<p>继续从代码中找问题：</p>
+<p>这次我直接在<a href="https://lists.nongnu.org/archive/html/qemu-riscv">QEMU Maillist</a> 的
+Archive 里查找 mret 关键词（先前 STFW 时有注意到相关邮件），直接抓到了更改的发生
+原因：</p>
+<p><a href="https://lists.nongnu.org/archive/html/qemu-riscv/2022-12/msg00030.html">修复 QEMU 行为的 PATCH</a>
+的提交者发现文档中指定的异常不是非法指令，而是访存错误；从此真相大白。</p>
+<p>Patch 见此：</p>
+<pre><code>Fixes: d102f19a2085 (&quot;target/riscv/pmp: Raise exception if no PMP entry is 
+configured&quot;)
+Signed-off-by: Bin Meng &lt;bmeng@tinylab.org&gt;
+---
+
+ target/riscv/op_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/riscv/op_helper.c b/target/riscv/op_helper.c
+index 09f1f5185d..d7af7f056b 100644
+--- a/target/riscv/op_helper.c
++++ b/target/riscv/op_helper.c
+@@ -202,7 +202,7 @@ target_ulong helper_mret(CPURISCVState *env)
+ 
+     if (riscv_feature(env, RISCV_FEATURE_PMP) &amp;&amp;
+         !pmp_get_num_rules(env) &amp;&amp; (prev_priv != PRV_M)) {
+-        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
++        riscv_raise_exception(env, RISCV_EXCP_INST_ACCESS_FAULT, GETPC());
+     }
+ 
+     target_ulong prev_virt = get_field(env-&gt;mstatus, MSTATUS_MPV);
+-- 
+2.34.1
+</code></pre>
+<h2>Summary</h2>
+<ul>
+<li>RISC-V 必须配置 PMP 项（让人联想到 i386 上大小 4G 的数据段和代码段）</li>
+<li>软件版本严重影响其行为，查找代码最能够解决问题</li>
+<li><del>RISC-V 是灵车</del></li>
+</ul>
+
+		<div style = "text-align: right">
+			Publish: 2023-04-27
+			
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
