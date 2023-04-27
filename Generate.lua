@@ -23,7 +23,7 @@ local gSrcDir <const>		= "./src/";
 
 local listFile = assert(io.open(gListFileName,"r"),
 			"Cannot open article list file");
-local list = load("return " .. listFile:read("a"))();
+local list = assert(load("return " .. listFile:read("a")))();
 listFile:close();
 --[[
 	This file should be like:

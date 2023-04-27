@@ -80,4 +80,9 @@
 		title	= "2022",
 		date	= "2023-01-03",
 	},
+	{
+		name	= "riscv_qemu_pmp",
+		title	= "记录 RISC-V QEMU 的一个坑",
+		date	= "2023-04-27",
+	},
 }
