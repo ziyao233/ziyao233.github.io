@@ -7,22 +7,32 @@
 - 编译器
 - 计算机底层的一些东西？
 - 很美的纯音乐！
-- 卡林巴琴和吉他
+- 吉他
 - 轻量的小东西！
-- 语言（toki pona）
+- 语言(toki pona, 日本語)
+- 业余无线电
 
 ## CS
 
 - 编译技术
-- Alpine Linux & Debian Linux 用户
-- 用 C99 和 Lua 5.4
-- 会写汇编， x86 和 rv64gc 都会
+- 日常使用 Alpine Linux Edge, musl yes OpenRC yes
+- 用 C99 和 Lua 5.4, 偶尔 Golang/Elm
+- 会写汇编， x86, AAarch64 和 rv64gc 都会
 - 前 OIer, 偶尔折腾算法
+- Kernel developer, U-boot developer, 致力于主线化
+
+## Amateur Ham Radio
+
+- 目前客席 BH8AEA
+- 中国业余无线电操作证书 A 证持有
+- 偶尔主持中继台网点名
+- CW & 短波预备
+- Satelite QRV
 
 ## 关于这个网站？
 
-~~由于咱不喜欢 JavaScript 和 Golang，网站没有用 Hexo 或者 Hugo 来生成页面，而是
-用了一段 Lua 脚本驱动 ``md2html`` 完成文章生成和模板替换~~  
+不喜欢 JavaScript 和 Golang，网站没有用 Hexo 或者 Hugo 来生成页面，而是
+用了一段 Lua 脚本驱动 ``md2html`` 完成文章生成和模板替换
 
 ~~感觉还可以~~
 
@@ -35,12 +45,15 @@
 - Twitter ``@ziyao233``
 - GitHub ``@ziyao233``
 
-## 我的项目嘛？  
+## 我的项目嘛？
 
 - [eweOS](https://os.ewe.moe): Yet another Linux distro
 - [mVim](https://github.com/ziyao233/mvim): 一个 Vim 的复刻版本
+- [zpartprobe](https://github.com/ziyao233/zpartprobe): 我自己的 PartProbe
+- [pawprint](https://github.com/eweOS/pawprint): systemd-tmpfiles 平替
+- [kdsh](https://github.com/ziyao233/kdsh): 内核调试专用
 - [rclang](https://github.com/ziyao233/rclang): 一门语言，最初为上古设备设计
-- [cwb](https://github.com/ziyao233/cwb) : C 语言实现的协程 HTTP 框架 
+- [cwb](https://github.com/ziyao233/cwb) : C 语言实现的协程 HTTP 框架
 - [libcson](https://github.com/ziyao233/libcson): 事件式 JSON 解析器
 
 ## GPG Public Key

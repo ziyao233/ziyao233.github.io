@@ -3,12 +3,13 @@
 		name	= "about",
 		title	= "About",
 		date	= "2022-01-30",
-		change	= "2023-04-16",
+		change	= "2023-11-29",
 	},
 	{
 		name	= "links",
 		title	= "友情链接",
 		date	= "2022-01-30",
+		change	= "2023-11-29",
 	},
 	{
 		name	= "rpi4b-system-reset",
