@@ -86,4 +86,9 @@
 		title	= "记录 RISC-V QEMU 的一个坑",
 		date	= "2023-04-27",
 	},
+	{
+		name	= "CQ_Satelite",
+		title	= "在卫星上喊 CQ",
+		date	= "2023-11-29",
+	},
 }
