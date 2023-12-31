@@ -91,4 +91,9 @@
 		title	= "在卫星上喊 CQ",
 		date	= "2023-11-29",
 	},
+	{
+		name	= "cdda_guide",
+		title	= "Cataclysm-DDA 入门",
+		date	= "2023-12-31",
+	},
 }
