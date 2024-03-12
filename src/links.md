@@ -6,6 +6,7 @@
 - [泠妄](https://www.wcysite.com/)
 - [安之若醇](https://blog.csdn.net/weixin_49599247/)
 - [Oldtaoge](https://oldtaoge.space)
+- [洛灵](https://blog.luoling.moe)
 - [Clansty 0w!](https://nyac.at/)
 - [Liet Blue](https://liet.moe/)
 - [H3arn 超可爱的姐姐！](https://h3a.moe)
