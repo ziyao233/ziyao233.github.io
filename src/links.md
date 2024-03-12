@@ -11,6 +11,7 @@
 - [Liet Blue](https://liet.moe/)
 - [H3arn 超可爱的姐姐！](https://h3a.moe)
 - [大明酱](https://blog.kawayi.moe/)
+- [Ratizux](https://ratizux.github.io/)
 - [Cloudy Moon](https://cloudymoon.pages.dev/links/)
 - [一个奇奇怪怪，啥都有的破网站](https://zhiccc.net)
 - [KaguyaHana's Blog](https://椛.みんな/)
