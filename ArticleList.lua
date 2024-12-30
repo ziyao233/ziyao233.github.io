@@ -96,4 +96,23 @@
 		title	= "Cataclysm-DDA 入门",
 		date	= "2023-12-31",
 	},
+--[[
+	I'm a pigeon.....
+	{
+		name	= "gcc_development_on_super_slow_arch",
+		title	= "优雅地在超（级慢动作计）算（机）调试 gcc",
+		date	= "2024-10-19",
+	},
+	{
+		name	= "llvm_cross_and_bootstrap",
+		title	= "LLVM 交叉编译与 bootstrap: riscv64 实践",
+		date	= "2024-10-19",
+	},
+--]]
+	{
+		name	= "linux_boot_protocol",
+		title	= "How Linux Boots: the Linux Boot Protocol" ..
+			  " (RISC platforms)",
+		date	= "2024-12-28",
+	},
 }
