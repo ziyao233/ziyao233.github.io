@@ -1,0 +1,302 @@
+<!--
+	Blog
+	File:/Article.tpl.html
+	Date:2023.04.16
+	By MIT License.
+	Copyright (c) 2022-2023 Ziyao.All rights reserved.
+-->
+
+<html>
+	<head>
+		<title>梓瑶233 - How Linux Boots: the Linux Boot Protocol (RISC platforms)</title>
+		<script type = "text/javascript">
+			MathJax = {
+				tex: {
+					inlineMath: [['$','$'],['\\(','\\']]
+				     }
+				  };
+		</script>
+		<script type = "text/javascript" id = "MathJax-script" async
+			src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+
+	<body>
+		<h1>How Linux Boots: the Linux Boot Protocol (RISC platforms)</h1>
+<p>I've worked on riscv64/loongarch64 Linux boot protocol support for limine and
+found that there was little precise and complete documentation on this topic,
+even doc.kernel.org only yields some general instructions, which doesn't help
+for writing a fully-functional bootloader. Finally I wasted a lot of time
+digging through kernel, U-boot and grub :/</p>
+<p>We won't cover x86_64 (bzImage format) and armv7 (zImage format) in this blog,
+since it's some type of conclusion after some learning and I had seldom worked
+with these kernels. We also omit the 32bit variants of RISC-V and LoongArch.</p>
+<h2>Image header format</h2>
+<p>They are ALL 64bytes in size[1].</p>
+<pre><code>// arch/riscv/include/asm/image.h
+struct riscv_header {
+        u32 code0;
+        u32 code1;
+        u64 text_offset;
+        u64 image_size;
+        u64 flags;
+        u32 version;
+        u32 res1;
+        u64 res2;
+        u64 magic;
+        u32 magic2;
+        u32 res3;
+};
+
+// arch/arm64/include/asm/image.h
+struct arm64_header {
+        __le32 code0;
+        __le32 code1;
+        __le64 text_offset;
+        __le64 image_size;
+        __le64 flags;
+        __le64 res2;
+        __le64 res3;
+        __le64 res4;
+        __le32 magic;
+        __le32 res5;
+};
+
+// No headers available, described in Documentation/arch/loongarch/booting.rst
+struct loongarch_header {
+    uint32_t mz;
+    uint32_t res0;
+    uint64_t kernel_entry;
+    uint64_t image_size;
+    uint64_t load_offset;
+    uint64_t res1;
+    uint64_t res2;
+    uint64_t res3;
+    uint32_t magic;
+    uint32_t pe_offset;
+};
+</code></pre>
+<h2>Boot with EFIstub</h2>
+<p>Linux offiically supports booting with UEFI through a small piece of code,
+called EFIstub[2], which allows the kernel to be loaded directly as UEFI
+application.</p>
+<p>The biggest gap to achieve this is executable format: the &quot;standard image
+format&quot; in UEFI environment is PE (thank you Micro$oft!). Our kernel image has
+to mimic a PE executable to be recognized by UEFI.</p>
+<p>Luckily, this is possible without messing the kernel header too much. To stay
+compatible with previous MZ-DOS executables, PE headers aren't located at the
+beginning of the file, its offset is stored at 0x3c (60 bytes)[3]. When
+EFIstub is enabled, the kernel header will start with <code>&quot;MZ&quot;</code>
+(<code>arm64/riscv_header.code0</code> and <code>loongarch_header.mz</code> serve for this purpose)
+and a PE header will be embedded in the image, pointed by <code>arm64_header.res5</code>,
+<code>riscv_header.res3</code> or <code>loongarch_header.pe_offset</code>.</p>
+<p>When the kernel is started as a UEFI image, EFIstub is executed first. It
+collects system information which isn't available after exiting UEFI boot
+services, setups kernel parameters, exits UEFI boot services and transfer
+control to the real image entry point.</p>
+<p>It's the best place[4] to learn about parameter passing convention, since
+kernel knows itself best.</p>
+<h2>General steps to boot a kernel, without EFIstub</h2>
+<ul>
+<li>Load the kernel image into RAM</li>
+<li>Prepare necessary arguments for kernel<ul>
+<li>kernel command line</li>
+<li>devicetree blob</li>
+<li>ACPI table</li>
+<li>UEFI System table</li>
+<li>Memory mappings</li>
+<li>address of initrd (optional)</li>
+</ul>
+</li>
+<li>Jump to the kernel</li>
+</ul>
+<h2>Load the kernel image into RAM</h2>
+<h3>Where the kernel should be</h3>
+<p>For RISC-V, the answer is simple: any 2MB-aligned address.</p>
+<p>For AArch64, it starts to be interesting: if BIT(3) of arm64_header.flags is
+set, it's exactly the RISC-V behavior; otherwise the 2MB-aligned base address
+should be chosen as close as possible to the RAM base.</p>
+<p>For most modern kernels, you could follow the RISC-V behavior, since after
+commit
+<code>a7f8de168ace (arm64: allow kernel Image to be loaded anywhere in physical memory, 2016-02-16)</code>[5],
+the bit is always set.</p>
+<p>LoongArch case seems a little complex. The kernel enables DMW (Direct Mapping
+Window[6]) instead of paging in privileged mode, which results in stricter
+requirements for address layout.</p>
+<ul>
+<li>If the the kernel is built with <code>CONFIG_RELOCATABLE</code>, it'll relocate itself
+and fix relocations up during startup, so you could load it to any address
+aligned to page size.</li>
+<li>Otherwise, loading the image to RAM base address plus
+<code>loongarch_header.load_offset</code> always works.</li>
+</ul>
+<h3>Verify whether it's a valid kernel</h3>
+<p>Check the kernel header,</p>
+<ul>
+<li>RISC-V<ul>
+<li><code>magic2</code> should be <code>0x05435352</code> (<code>&quot;RSC\x05&quot;</code>)</li>
+<li><code>version</code> describes boot protocol version, currently 0.2. High 16 bits
+represents major version and low 16 bits for minor.</li>
+<li><code>magic</code> is a deprecated field, it should be <code>0x5643534952</code>
+(<code>&quot;RISCV\0\0\0&quot;</code>)</li>
+</ul>
+</li>
+<li>AArch64<ul>
+<li><code>magic</code> should be <code>0x644d5241</code></li>
+</ul>
+</li>
+<li>LoongArch<ul>
+<li><code>magic</code> should be <code>0x818223cd</code></li>
+</ul>
+</li>
+</ul>
+<h2>Prepare necessary arguments for kernel</h2>
+<p>There are roughly 3 ways to pass an argument to the kernel</p>
+<ul>
+<li>Pass it in the register</li>
+<li>Add it to <code>/chosen</code> node in DTB</li>
+<li>Install it as UEFI configuration table with Linux-specific GUID</li>
+</ul>
+<p>For the third method, please note that installation of a UEFI configuration
+table is only provided as UEFI boot service through
+<code>EFI_BOOT_SERVICES.InstallConfigurationTable()</code>, which means you'll lose access
+to it after exiting boot services.</p>
+<h3>kernel command line</h3>
+<ul>
+<li>On LoongArch, it's passed in <code>a1</code> register</li>
+<li>Assign the string to <code>/chosen/linux,bootargs</code> in DTB</li>
+</ul>
+<h3>devicetree blob</h3>
+<ul>
+<li>LoongArch retrieves it from UEFI tables</li>
+<li>On AArch64, it's passed in <code>a0</code></li>
+<li>On RISC-V, it's passed in <code>a1</code></li>
+</ul>
+<h3>ACPI table</h3>
+<ul>
+<li>Installed as UEFI configuration table</li>
+</ul>
+<h3>UEFI System table</h3>
+<ul>
+<li>On LoongArch, it's passed in <code>a2</code></li>
+<li>Assign its address to <code>/chosen/linux,uefi-system-table</code> (u64) in DTB</li>
+</ul>
+<h3>Memory mappings</h3>
+<ul>
+<li><code>/memory</code> nodes in DTB</li>
+<li>Add information of UEFI memory mappings to DTB, including following
+properties,<ul>
+<li>u64 <code>/chosen/linux,uefi-mmap-start</code></li>
+<li>u32 <code>/chosen/linux,uefi-mmap-size</code></li>
+<li>u32 <code>/chosen/linux,uefi-mmap-desc-size</code></li>
+<li>u32 <code>/chosen/linux,uefi-mmap-desc-ver</code></li>
+</ul>
+</li>
+<li>Register an <code>efi_boot_memmap</code> structure as UEFI configuration table with
+GUID <code>{ 0x800f683f, 0xd08b, 0x423a, { 0xa2, 0x93 , 0x96, 0x5c, 0x3c, 0x6f, 0xe2, 0xb4} }</code></li>
+</ul>
+<p><code>efi_boot_memmap</code> is defined as follows,</p>
+<pre><code class="language-C">struct efi_boot_memmap {
+        unsigned long           map_size;
+        unsigned long           desc_size;
+        u32                     desc_ver;
+        unsigned long           map_key;
+        unsigned long           buff_size;
+        efi_memory_desc_t       map[];
+};
+</code></pre>
+<p>For the last two methods, the memory mapping information should be obtained
+through <code>EFI_BOOT_SERVICES.GetMemoryMap()</code>. These mappings should also be
+installed with <code>EFI_RUNTIME_SERVICES.SetVirtualAddressMap()</code>, a 1:1 mapping
+works well for RISC-V and AArch64.</p>
+<p>LoongArch kernel requires extra care: it expects runtime memory regions to
+be mapped to the third direct mapping window, which starts at (0x8ULL &lt;&lt; 60)
+and is optionally-cached and privileged-only. A simple way to achieve this is
+setting virtual address to corresponding physical address OR'ed with
+<code>(0x8 &lt;&lt; 60)</code>.</p>
+<h3>Address of initrd</h3>
+<ul>
+<li>Set its start and end address to <code>/chosen/linux,initrd-start</code> and
+<code>/chosen/linux,initrd-end</code> in DTB. Both of them should be u64.</li>
+<li>Install <code>linux_efi_initrd</code> structure as UEFI configuration table, with
+GUID <code>{ 0x5568e427, 0x68fc, 0x4f3d, { 0xac, 0x74, 0xca, 0x55, 0x52, 0x31, 0xcc, 0x68} }</code></li>
+</ul>
+<p><code>linux_efi_initrd</code> is defined as follows</p>
+<pre><code class="language-C">struct linux_efi_initrd {
+        unsigned long   base;
+        unsigned long   size;
+};
+</code></pre>
+<h2>Jump to the kernel</h2>
+<h3>AArch64</h3>
+<p>Jump directly to the start of the image.</p>
+<ul>
+<li><code>x0</code>: devicetree blob</li>
+<li><code>x1</code>, <code>x2</code>, <code>x3</code>: reserved, should be zeroed for now</li>
+</ul>
+<h3>RISC-V</h3>
+<p>Jump directly to the start of the image.</p>
+<ul>
+<li><code>a0</code>: ID of this RISC-V hart (retrieve it from <code>mhartid</code> CSR[7] or through
+SBI calls)</li>
+<li><code>a1</code>: devicetree blob</li>
+</ul>
+<h3>LoongArch</h3>
+<p>In short, the offset of kernel entry could be calculated with</p>
+<pre><code>(loongarch_header.kernel_entry &amp; ((1ULL &lt;&lt; 48) - 1)) - loongarch_header.load_offset
+</code></pre>
+<p>The AND takes the low 48bits of the address. This is required since virtual
+address (DMW-mapped address) was used in <code>loongarch_header.kernel_entry</code> and
+clearing the high 16bits converts it to physical address. This quirk has been
+fixed in
+<code>beb2800074c1 (LoongArch: Fix entry point in kernel image header, 2024-06-03)</code>[8].</p>
+<ul>
+<li><code>a0</code>: If UEFI is available, set to 1</li>
+<li><code>a1</code>: address of kernel command line</li>
+<li><code>a2</code>: address of UEFI system table. This is necessary even UEFI is
+unavailable (<code>a0</code> is set to zero). In this case, you should construct a fake
+UEFI system table and install the devicetree blob as vendor table, it'll only
+be used to search for the DTB.</li>
+</ul>
+<h3>Does jump to the start of kernel image work? There may be the signature!</h3>
+<p>Yes, even the kernel is built with EFIstub.</p>
+<p>The &quot;MZ&quot; signature represents a valid instruction on both AArch64
+(<code>ccmp x18, #0, #0xd, pl</code>) and RISC-V (<code>c.li s4,-13</code>). There follows a jump
+instruction targeting the real entrypoint.</p>
+<h2>Some helpful material</h2>
+<ul>
+<li>EFIstub source: the kernel knows itself best.</li>
+<li>systemd-boot: a simple and straight bootloader, implementing most of the
+features through UEFI-calls.</li>
+<li>UEFI Specification: it does help to know about these basic terms when reading
+source of UEFI-capable bootloaders. The specification also serves as a
+manual.</li>
+<li>U-boot source. <code>arch/&lt;ARCH&gt;/lib/bootm.c</code> and <code>arch/&lt;ARCH&gt;/lib/image.c</code> are.
+most related to Linux kernel booting. For WIP LoongArch support, see[9]</li>
+</ul>
+<p>Specially, thank you FlyGoat for explaining LoongArch stuff!</p>
+<ul>
+<li>[1] <a href="https://elixir.bootlin.com/linux/v6.11-rc1/source/arch/arm64/include/asm/image.h">AArch64</a>
+<a href="https://elixir.bootlin.com/linux/v6.11-rc1/source/arch/riscv/include/asm/image.h">RISC-V</a>
+<a href="https://elixir.bootlin.com/linux/v6.11-rc1/source/Documentation/arch/loongarch/booting.rst">LoongArch documentation</a></li>
+<li>[2] <a href="https://elixir.bootlin.com/linux/v6.11-rc1/source/Documentation/admin-guide/efi-stub.rst">More information on EFIstub</a></li>
+<li>[3] <a href="https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#ms-dos-stub-image-only">PE documentation</a></li>
+<li>[4] It locates at <code>drivers/firmware/efi/libstub</code> in Linux source tree</li>
+<li>[5] <a href="https://github.com/torvalds/linux/commit/a7f8de168ace">commit on GitHub</a></li>
+<li>[6] <a href="https://elixir.bootlin.com/linux/v6.11-rc1/source/Documentation/arch/loongarch/introduction.rst#L290">More information on LoongArch DMW window</a></li>
+<li>[7] The RISC-V Instruction Set Manual: Volume II: Privileged Architecture
+(20241101 version), 3.1.5</li>
+<li>[8] <a href="http://github.com/torvalds/linux/commit/beb2800074c1">commit on GitHub</a></li>
+<li>[9] <a href="https://lore.kernel.org/u-boot/20240522-loongarch-v1-0-1407e0b69678@flygoat.com/">series on lore.kernel.org</a></li>
+</ul>
+
+		<div style = "text-align: right">
+			Publish: 2024-12-28
+			
+		</div>
+		<div style = "text-align: center">
+			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
+			<a href="./index.html">GO BACK</a>
+		</div>
+	</body>
+</html>
