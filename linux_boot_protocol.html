@@ -77,7 +77,7 @@ struct loongarch_header {
 };
 </code></pre>
 <h2>Boot with EFIstub</h2>
-<p>Linux offiically supports booting with UEFI through a small piece of code,
+<p>Linux officially supports booting with UEFI through a small piece of code,
 called EFIstub[2], which allows the kernel to be loaded directly as UEFI
 application.</p>
 <p>The biggest gap to achieve this is executable format: the &quot;standard image
@@ -92,7 +92,7 @@ and a PE header will be embedded in the image, pointed by <code>arm64_header.res
 <code>riscv_header.res3</code> or <code>loongarch_header.pe_offset</code>.</p>
 <p>When the kernel is started as a UEFI image, EFIstub is executed first. It
 collects system information which isn't available after exiting UEFI boot
-services, setups kernel parameters, exits UEFI boot services and transfer
+services, setups kernel parameters, exits UEFI boot services and transfers
 control to the real image entry point.</p>
 <p>It's the best place[4] to learn about parameter passing convention, since
 kernel knows itself best.</p>
@@ -169,7 +169,7 @@ to it after exiting boot services.</p>
 <h3>devicetree blob</h3>
 <ul>
 <li>LoongArch retrieves it from UEFI tables</li>
-<li>On AArch64, it's passed in <code>a0</code></li>
+<li>On AArch64, it's passed in <code>x0</code></li>
 <li>On RISC-V, it's passed in <code>a1</code></li>
 </ul>
 <h3>ACPI table</h3>
