@@ -120,4 +120,9 @@
 		title	= "我的 2024",
 		date	= "2025-02-01",
 	},
+	{
+		name	= "string_bsd_in_infradead_mail",
+		title	= "No, lists.infraded.org doesn't run on BSD",
+		date	= "2025-09-23",
+	},
 }
