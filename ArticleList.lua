@@ -125,4 +125,9 @@
 		title	= "No, lists.infraded.org doesn't run on BSD",
 		date	= "2025-09-23",
 	},
+	{
+		name	= "my_2025",
+		title	= "半夜的年终总结：我的 2025",
+		date	= "2026-02-16",
+	},
 }
