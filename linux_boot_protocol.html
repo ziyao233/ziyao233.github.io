@@ -146,7 +146,14 @@ represents major version and low 16 bits for minor.</li>
 </ul>
 </li>
 <li>LoongArch<ul>
-<li><code>magic</code> should be <code>0x818223cd</code></li>
+<li><p><code>magic</code> should be <code>0x818223cd</code></p>
+</li>
+<li><p>2026.03.08 update: It's insufficient to decide the image architecture by
+only examining <code>magic</code>, since x86 shares the same value at the same offset.</p>
+<p><code>0x818223cd</code> standards for <code>LINUX_PE_MAGIC</code>, and only indicates the image
+supports EFIstub booting, but not necessarily bare-metal booting without
+EFIstub as described in this article[a1].</p>
+</li>
 </ul>
 </li>
 </ul>
@@ -237,8 +244,11 @@ GUID <code>{ 0x5568e427, 0x68fc, 0x4f3d, { 0xac, 0x74, 0xca, 0x55, 0x52, 0x31, 0
 <h3>RISC-V</h3>
 <p>Jump directly to the start of the image.</p>
 <ul>
-<li><code>a0</code>: ID of this RISC-V hart (retrieve it from <code>mhartid</code> CSR[7] or through
-SBI calls)</li>
+<li><code>a0</code>: ID of this RISC-V hart (retrieve it from <code>mhartid</code> CSR[7] <del>or through
+SBI calls</del>)<ul>
+<li>2026.03.08 update: mhartid couldn't be retrived through SBI calls.</li>
+</ul>
+</li>
 <li><code>a1</code>: devicetree blob</li>
 </ul>
 <h3>LoongArch</h3>
@@ -288,11 +298,19 @@ most related to Linux kernel booting. For WIP LoongArch support, see[9]</li>
 (20241101 version), 3.1.5</li>
 <li>[8] <a href="http://github.com/torvalds/linux/commit/beb2800074c1">commit on GitHub</a></li>
 <li>[9] <a href="https://lore.kernel.org/u-boot/20240522-loongarch-v1-0-1407e0b69678@flygoat.com/">series on lore.kernel.org</a></li>
+<li>[a1] <a href="https://github.com/torvalds/linux/commit/29636a5ce87b">Linux commit 29636a5ce87b (&quot;efi: Put Linux specific magic number in the DOS header&quot;)</a><blockquote>
+<p>So let's use the same field in the DOS header that RISC-V and arm64
+already use for their 'bare metal' magic numbers to store a 'generic
+Linux kernel' magic number, which can be used to identify bootable
+kernel images in PE format which don't necessarily implement a bare
+metal boot protocol in the same binary.</p>
+</blockquote>
+</li>
 </ul>
 
 		<div style = "text-align: right">
 			Publish: 2024-12-28
-			
+			</br>Last Change: 2026-04-30
 		</div>
 		<div style = "text-align: center">
 			如无特殊说明，本站所有内容以 CC-BY-SA 4.0 协议发布</br>
