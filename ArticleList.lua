@@ -3,7 +3,7 @@
 		name	= "about",
 		title	= "About",
 		date	= "2022-01-30",
-		change	= "2023-11-29",
+		change	= "2026-04-30",
 	},
 	{
 		name	= "links",
