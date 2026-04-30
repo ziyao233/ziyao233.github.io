@@ -136,6 +136,12 @@ Check the kernel header,
   - `magic` should be `0x644d5241`
 - LoongArch
   - `magic` should be `0x818223cd`
+  - 2026.03.08 update: It's insufficient to decide the image architecture by
+    only examining `magic`, since x86 shares the same value at the same offset.
+
+    `0x818223cd` standards for `LINUX_PE_MAGIC`, and only indicates the image
+    supports EFIstub booting, but not necessarily bare-metal booting without
+    EFIstub as described in this article[a1].
 
 ## Prepare necessary arguments for kernel
 
@@ -237,8 +243,9 @@ Jump directly to the start of the image.
 
 Jump directly to the start of the image.
 
-- `a0`: ID of this RISC-V hart (retrieve it from `mhartid` CSR[7] or through
-  SBI calls)
+- `a0`: ID of this RISC-V hart (retrieve it from `mhartid` CSR[7] ~~or through
+  SBI calls~~)
+  - 2026.03.08 update: mhartid couldn't be retrived through SBI calls.
 - `a1`: devicetree blob
 
 ### LoongArch
@@ -295,3 +302,9 @@ Specially, thank you FlyGoat for explaining LoongArch stuff!
      (20241101 version), 3.1.5
 - [8] [commit on GitHub](http://github.com/torvalds/linux/commit/beb2800074c1)
 - [9] [series on lore.kernel.org](https://lore.kernel.org/u-boot/20240522-loongarch-v1-0-1407e0b69678@flygoat.com/)
+- [a1] [Linux commit 29636a5ce87b ("efi: Put Linux specific magic number in the DOS header")](https://github.com/torvalds/linux/commit/29636a5ce87b)
+  > So let's use the same field in the DOS header that RISC-V and arm64
+  > already use for their 'bare metal' magic numbers to store a 'generic
+  > Linux kernel' magic number, which can be used to identify bootable
+  > kernel images in PE format which don't necessarily implement a bare
+  > metal boot protocol in the same binary.

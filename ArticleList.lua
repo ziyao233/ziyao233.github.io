@@ -114,6 +114,7 @@
 		title	= "How Linux Boots: the Linux Boot Protocol" ..
 			  " (RISC platforms)",
 		date	= "2024-12-28",
+		change	= "2026-04-30",
 	},
 	{
 		name	= "my_2024",
