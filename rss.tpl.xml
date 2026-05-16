@@ -1,0 +1,41 @@
+<!--
+	Blog
+	File:/rss.tpl.xml
+	Date:2026.05.16
+	By MIT License.
+	Copyright(c) 2021-2026 Ziyao.All rights reserved.
+-->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>梓瑶233</title>
+		<link>https://blog.ziyao.cc/</link>
+		<description>Blog posts</description>
+		<language>zh-cn</language>
+		<atom:link href="https://blog.ziyao.cc/rss.xml" rel="self" type="application/rss+xml" />
+		$===$
+local gen = function(s)
+	table.insert(tpl.result,s);
+	return;
+end
+
+for _,article in ipairs(tpl.arg)
+do
+	local s = string.format([[
+<item>
+	<title>%s</title>
+	<link>https://blog.ziyao.cc/%s</link>
+	<description>Read &lt;a href="https://blog.ziyao.cc/%s"&gt;full version&lt;/a&gt;.</description>
+	<pubDate>%s</pubDate>
+	<guid isPermaLink="false">ziyao-blog-%s</guid>
+</item>
+]],
+				article.title,
+				article.name .. ".html",
+				article.name .. ".html",
+				os.date("%d %b %Y %T %z", article.date),
+				article.name);
+	gen(s);
+end
+		$===$
+	</channel>
+</rss>

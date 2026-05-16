@@ -17,6 +17,7 @@ local modTemplate	= require("Template");
 
 local gListFileName <const>	= "ArticleList.lua";
 local gIndexTplName <const>	= "index.tpl.html";
+local gRssTplName <const> 	= "rss.tpl.xml";
 local gArtTplName <const>	= "Article.tpl.html";
 local gOutputDir <const>	= "./output/";
 local gSrcDir <const>		= "./src/";
@@ -40,6 +41,7 @@ listFile:close();
 --[[	Load templates	]]
 
 local indexTpl = modTemplate.Template(gIndexTplName);
+local rssTpl = modTemplate.Template(gRssTplName);
 local articleTpl = modTemplate.Template(gArtTplName);
 
 --[[	Spawn the reserved list	and preprocess	]]
@@ -122,4 +124,13 @@ local indexPath		= string.format("%sindex.html",
 					gOutputDir);
 local outputIndex	= io.open(indexPath,"w");
 outputIndex:write(resultHtml);
+print("Done");
+
+
+io.write("Generating rss.xml...");
+local resultRss		= rssTpl:replace(nativeList);
+local rssPath		= string.format("%srss.xml",
+					gOutputDir);
+local outputRss		= io.open(rssPath,"w");
+outputRss:write(resultRss);
 print("Done");
