@@ -5,7 +5,7 @@
 ## 起因
 
 [这个富有攻击性的仓库](https://github.com/ziyao233/cocox-rv64) 中包含一个
-（WIP 的）RISC-V 64 内核。~~代码写不动的时候就会想到去借鉴一下别人的逻辑~~，
+（WIP 的）RISC-V 64 内核。 ~~代码写不动的时候就会想到去借鉴一下别人的逻辑~~ ，
 在 GitHub 以 riscv 和 kernel 为关键词进行搜索，排名靠前的项目之一就是
 [xv6-riscv](https://github.com/mit-pdos/xv6-riscv)。这个仓库在 QEMU 虚拟化
 的 RISC-V 系统上复刻了经典的 UNIX v6。
@@ -153,7 +153,7 @@ target_ulong helper_mret(CPURISCVState *env, target_ulong cpu_pc_deb)
 ## 群友踩雷
 
 于是我成功避坑了，自己的 [cocox-rv64](https://github.com/ziyao233/cocox-rv64)
-内核没有掉进这个问题~~虽然掉进了另一个问题~~。
+内核没有掉进这个问题 ~~虽然掉进了另一个问题~~ 。
 
 直到群友的出现，一个叫做 `switch_to` 的文件，一个 mcause = 0x01 的异常一样挂死
 了 QEMU，我立马想到 Issue 中的问题，给出了设置 PMP 寄存器的解决方案。
