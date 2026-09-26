@@ -28,7 +28,7 @@
 </blockquote>
 <h2>起因</h2>
 <p><a href="https://github.com/ziyao233/cocox-rv64">这个富有攻击性的仓库</a> 中包含一个
-（WIP 的）RISC-V 64 内核。<del>代码写不动的时候就会想到去借鉴一下别人的逻辑</del>，
+（WIP 的）RISC-V 64 内核。 <del>代码写不动的时候就会想到去借鉴一下别人的逻辑</del> ，
 在 GitHub 以 riscv 和 kernel 为关键词进行搜索，排名靠前的项目之一就是
 <a href="https://github.com/mit-pdos/xv6-riscv">xv6-riscv</a>。这个仓库在 QEMU 虚拟化
 的 RISC-V 系统上复刻了经典的 UNIX v6。</p>
@@ -148,7 +148,7 @@ set to OFF, then all S-mode and U-mode memory accesses will fail.</p>
 </blockquote>
 <h2>群友踩雷</h2>
 <p>于是我成功避坑了，自己的 <a href="https://github.com/ziyao233/cocox-rv64">cocox-rv64</a>
-内核没有掉进这个问题<del>虽然掉进了另一个问题</del>。</p>
+内核没有掉进这个问题 <del>虽然掉进了另一个问题</del> 。</p>
 <p>直到群友的出现，一个叫做 <code>switch_to</code> 的文件，一个 mcause = 0x01 的异常一样挂死
 了 QEMU，我立马想到 Issue 中的问题，给出了设置 PMP 寄存器的解决方案。</p>
 <pre><code>csrw	pmpcfg0,	0xf

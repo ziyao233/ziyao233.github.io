@@ -76,7 +76,7 @@ $$ \sum _ {k = 0} ^{\lg n - 1} 2 ^k $$</p>
 很明显 <code>F[n]</code> 就是写出 <code>n</code> 需要多少个 4。
 我们且称之为 <strong>四表示</strong> （不错的名字）</p>
 <p>那么写出 4 只需要一个 4 就行了（逃），第一题选 D</p>
-<p>先不看第二题<del>因为看不出来</del>，第三题决定了我们每次外层循环选中的 <code>x</code>。
+<p>先不看第二题 <del>因为看不出来</del> ，第三题决定了我们每次外层循环选中的 <code>x</code>。
 对应的 <code>Vis[x]</code> 数组意味着我们是否已经<strong>用过</strong> <code>x</code> 来生成
 别的数字的四表示了（得出这一点需要和其它选项一起分析），
 那么在 <code>Vis[x] = 1</code> 前的 <code>for </code> 循环中，我们要找出的 <code>x</code>
