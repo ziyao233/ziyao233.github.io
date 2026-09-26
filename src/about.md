@@ -4,6 +4,7 @@ I'm very talented at confusing myself without any assistance.
 
 - 编译器苦手，二进制仙人，微架构民科
 - U-Boot/Linux 贡献者
+  - 什么都 review 不出来的 U-Boot RISC-V reviewer
 - musl 用户，骄傲地使用 [eweOS](https://os.ewe.moe) 与 Alpine Linux
 - 开源灵车爱好者 自由大便品鉴家
 - 业余无线电弃坑完成时，持有中国大陆业余无线电 A 级操作证书
@@ -11,11 +12,12 @@ I'm very talented at confusing myself without any assistance.
 
 ## 关于这个网站
 
-本站骄傲地由 Lua 脚本与 `md2html` 驱动。
+[本站](https://github.com/ziyao233/ziyao233.github.io)骄傲地由 Lua 脚本与
+`md2html` 驱动。
 
 ## 联系我 - Contact Me
 
-中英文交流皆可，也欢迎用 toki pona 打招呼
+中英文交流皆可，也欢迎用 toki pona 打招呼、私は日本語を勉強している。
 
 - E-mail `Yao Zi <me@ziyao.cc>`
   - `Yao Zi <ziyao@disroot.org>` 现已弃用
@@ -28,6 +30,7 @@ I'm very talented at confusing myself without any assistance.
 - [eweOS](https://os.ewe.moe): Yet another Linux distro
 - [loli-loader](https://github.com/ziyao233/loli-loader)：Yet another UEFI
   bootloader
+- [a1ex](https://github.com/ziyao233/a1ex)：A poor coding A1 agent
 - [mVim](https://github.com/ziyao233/mvim): 类 Vim 编辑器
 - [zpartprobe](https://github.com/ziyao233/zpartprobe): 最小 partprobe 实现
 
