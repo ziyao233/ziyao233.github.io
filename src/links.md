@@ -12,6 +12,9 @@
 - [大明酱](https://blog.kawayi.moe/)
 - [一个奇奇怪怪，啥都有的破网站](https://zhiccc.net)
 - [Cherrling](https://cherr.cc)
+- [Revy](https://blog.revysr.cc/)
+- [FlyGoat](https://blog.flygoat.com/)
+- [yuki1936](https://yuki1936.com/)
 
 ## 已不可达的链接（悲）
 
