@@ -9,7 +9,7 @@
 		name	= "links",
 		title	= "友情链接",
 		date	= "2022-01-30",
-		change	= "2024-03-12",
+		change	= "2026-09-26",
 	},
 	{
 		name	= "rpi4b-system-reset",
