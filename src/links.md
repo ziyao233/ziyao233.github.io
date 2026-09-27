@@ -15,6 +15,9 @@
 - [Revy](https://blog.revysr.cc/)
 - [FlyGoat](https://blog.flygoat.com/)
 - [yuki1936](https://yuki1936.com/)
+- [regymm's blog](https://www.ustcpetergu.com/MyBlog/)
+- [xtex](https://blog.xtexx.eu.org/)
+- [iks](https://blog.iks.moe/links/)
 
 ## 已不可达的链接（悲）
 
